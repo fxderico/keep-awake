@@ -15,7 +15,7 @@ APP_NAME="KeepAwake"
 DISPLAY_NAME="Keep Awake"
 BUILD_DIR="$ROOT_DIR/.build"
 DIST_DIR="$ROOT_DIR/dist"
-APP_BUNDLE="$DIST_DIR/${DISPLAY_NAME}.app"
+APP_BUNDLE="$DIST_DIR/${APP_NAME}.app"
 DMG_NAME="wakeup.dmg"
 
 echo "==> Cleaning previous build output"
@@ -36,7 +36,7 @@ if [[ ! -f "$BIN_PATH" ]]; then
     exit 1
 fi
 
-echo "==> Assembling ${DISPLAY_NAME}.app"
+echo "==> Assembling ${APP_NAME}.app"
 mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources"
 
@@ -70,4 +70,4 @@ ls -lh "$DIST_DIR/$DMG_NAME"
 echo ""
 echo "NOTE: this build is ad-hoc signed only (no Apple Developer ID / notarization"
 echo "credentials were used). First launch will require right-click > Open, or"
-echo "'xattr -dr com.apple.quarantine \"${DISPLAY_NAME}.app\"' after mounting the DMG."
+echo "'xattr -cr /Applications/${APP_NAME}.app' after installing."

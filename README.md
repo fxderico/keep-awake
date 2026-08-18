@@ -58,20 +58,52 @@ cd KeepAwake
 Requires Xcode command line tools (`xcode-select --install`). No third-party
 dependencies are fetched — `swift build` only needs the platform SDK.
 
-The build is **ad-hoc signed** (`codesign --sign -`), not notarized — no Apple
-Developer ID was available in this pipeline. On first launch, either right-click
-→ Open, or run:
-
-```sh
-xattr -dr com.apple.quarantine "/Applications/Keep Awake.app"
-```
-
 ## Building via GitHub Actions
 
 Pushing to `main` (or running the workflow manually) builds on `macos-14`
 and uploads `wakeup.dmg` as a workflow artifact named `wakeup-dmg`.
 
+## Installing (Gatekeeper note)
+
+The build is **ad-hoc signed** (`codesign --sign -`), not notarized — that
+requires a paid Apple Developer Program membership, which this project
+doesn't have. macOS Gatekeeper will therefore flag a plain download as
+"unverified" the first time you open it. Three ways around that, pick one:
+
+**1. Terminal, one line (after dragging the app into `/Applications`):**
+
+```sh
+xattr -cr /Applications/KeepAwake.app
+```
+
+`-c` clears *all* extended attributes (not just quarantine) and `-r` applies
+it recursively through the bundle — the most complete way to strip Gatekeeper's
+quarantine flag from the command line.
+
+**2. Right-click → Open (no Terminal needed):**
+
+1. Open the mounted `wakeup.dmg` and drag `KeepAwake.app` into `/Applications`.
+2. In Finder, hold **Control** and click (or right-click) `KeepAwake.app`.
+3. Choose **Open** from the context menu.
+4. Click **Open** again on the confirmation dialog.
+
+This only needs to be done once — macOS remembers your choice for future launches.
+
+**3. Homebrew (recommended for repeat installs/updates):**
+
+```sh
+brew tap fxderico/tap
+brew install --cask keepawake
+```
+
+Homebrew Cask downloads via `curl`, not a browser, so the file never gets
+the `com.apple.quarantine` attribute in the first place — no manual step
+needed. It also gives you `brew upgrade` for future versions. Tap source:
+[fxderico/homebrew-tap](https://github.com/fxderico/homebrew-tap).
+
 ## Deployment note
 
 `wakeup.dmg` produced by CI was copied to `/var/www/fede.one/wakeup.dmg`
-(mode 644) for public download at `https://fede.one/wakeup.dmg`.
+(mode 644) for public download at `https://fede.one/wakeup.dmg`, and is
+also attached to this repo's GitHub Releases for the Homebrew Cask to
+reference by a stable, versioned URL.
